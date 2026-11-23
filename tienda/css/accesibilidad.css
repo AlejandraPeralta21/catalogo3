@@ -1,0 +1,67 @@
+/* Semana 3 - Accesibilidad a11y y Contraste WCAG (CSS/accesibilidad.css) */
+:focus-visible {
+  outline: 3px solid #0d9488 !important;
+  outline-offset: 2px !important;
+}
+
+body.alto-contraste {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.alto-contraste .card,
+body.alto-contraste .card-item,
+body.alto-contraste article,
+body.alto-contraste .card-box,
+body.alto-contraste .topbar,
+body.alto-contraste .drawer,
+body.alto-contraste .drawer__top,
+body.alto-contraste .bottom-nav,
+body.alto-contraste .modal-box,
+body.alto-contraste .panel-auditoria,
+body.alto-contraste .panel-cierre-a11y,
+body.alto-contraste .footer,
+body.alto-contraste .banner {
+  border: 2px solid #facc15 !important;
+  background-color: #111827 !important;
+  color: #ffffff !important;
+}
+
+body.alto-contraste button,
+body.alto-contraste input,
+body.alto-contraste select,
+body.alto-contraste textarea,
+body.alto-contraste .chip,
+body.alto-contraste .cat-tile,
+body.alto-contraste .cat-item__btn {
+  border: 2px solid #facc15 !important;
+  color: #ffffff !important;
+  background-color: #000000 !important;
+}
+
+body.alto-contraste a {
+  color: #facc15 !important;
+  text-decoration: underline !important;
+}
+
+body.alto-contraste .badge,
+body.alto-contraste .badge-network,
+body.alto-contraste .cart-count {
+  border: 1px solid #facc15 !important;
+  color: #facc15 !important;
+  background-color: #000000 !important;
+}
+
+body.alto-contraste .card__name,
+body.alto-contraste .card__price,
+body.alto-contraste h1,
+body.alto-contraste h2,
+body.alto-contraste h3,
+body.alto-contraste p,
+body.alto-contraste span {
+  color: #ffffff !important;
+}
+
+body.alto-contraste .muted {
+  color: #fef08a !important;
+}

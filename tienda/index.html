@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mi Tiendita | Mercado de barrio</title>
+  <meta name="description" content="Mi Tiendita: tienda de barrio con alimentos frescos y productos de consumo diario.">
+  
+  <!-- PWA & Mobile Meta Tags -->
+  <meta name="theme-color" content="#315b45">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Mi Tiendita">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Tipografía Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Hoja de Estilos -->
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Semana 3 - Accesibilidad a11y y Contraste WCAG -->
+  <link rel="stylesheet" href="css/accesibilidad.css">
+
+  <!-- DOMPurify para Sanitización Obligatoria Anti-XSS (UPDS Guía C3-A2) -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+
+  <!-- Aplica el tema guardado antes de pintar para evitar parpadeo -->
+  <script>
+    try { 
+      document.documentElement.setAttribute('data-theme', localStorage.getItem('mt_theme') || 'light'); 
+    } catch (e) {}
+  </script>
+</head>
+<body>
+
+  <!-- ===================== CABECERA (TOPBAR) ===================== -->
+  <header class="topbar">
+    <div class="topbar__inner">
+      <!-- Semana 1 - Menu Hamburguesa -->
+      <button class="icon-btn hamburger" id="btnMenu" aria-label="Abrir menú" aria-expanded="false" aria-controls="drawer">
+        <span></span><span></span><span></span>
+      </button>
+
+      <a href="#inicio" class="logo" data-nav="inicio" aria-label="Mi Tiendita, ir al inicio">
+        <svg class="logo__icon" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M4 6h6l5 24h22l5-17H13" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 18h24M17 24h21M22 13v17M30 13v17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="18" cy="38" r="3.4" fill="currentColor"/><circle cx="35" cy="38" r="3.4" fill="currentColor"/>
+        </svg>
+        <span class="logo__text">
+          <strong>Mi Tiendita</strong>
+          <small>Tu tienda de barrio ♥</small>
+        </span>
+      </a>
+
+      <!-- Indicador Visual de Red (🟢 En Línea / 🟠 Modo Offline) -->
+      <span class="badge-network" id="estadoRed" role="status" aria-live="polite">🟢 En Línea</span>
+
+      <!-- Botón de Instalación PWA (Visible al dispararse beforeinstallprompt) -->
+      <button type="button" class="btn-install" id="btnInstalarPWA" hidden aria-label="Instalar aplicación en dispositivo">
+        📲 Instalar App
+      </button>
+
+      <nav class="desktop-nav" aria-label="Navegación principal">
+        <a href="#inicio" data-nav="inicio">Inicio</a>
+        <a href="#categorias" data-nav="categorias">Categorías</a>
+        <a href="#productos" data-nav="productos">Productos</a>
+        <a href="#carrito" data-nav="carrito">Mi carrito <span class="badge cart-count">0</span></a>
+        <a href="#contacto" data-nav="contacto">Contacto</a>
+      </nav>
+
+      <form class="search" id="searchForm" role="search" autocomplete="off">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="search" id="searchInput" placeholder="Buscar productos..." aria-label="Buscar productos">
+      </form>
+
+      <button type="button" class="icon-btn" id="btnSimularContrasteTop" aria-pressed="false" aria-label="Simular modo alto contraste" title="Alto contraste WCAG" style="font-size:1.1rem; min-width:44px; min-height:44px;">🎨</button>
+      <button class="icon-btn theme-btn" id="btnThemeTop" aria-label="Cambiar tema claro u oscuro">
+        <span class="theme-btn__sun">☀</span><span class="theme-btn__moon">☾</span>
+      </button>
+
+      <button class="icon-btn cart-btn" data-nav="carrito" aria-label="Ir al carrito">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 4h3l3 11h10l3-8H7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="19" r="1.6" fill="currentColor"/><circle cx="17" cy="19" r="1.6" fill="currentColor"/></svg>
+        <span class="badge cart-count">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===================== MENÚ HAMBURGUESA / DRAWER ===================== -->
+  <div class="overlay" id="overlay"></div>
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer__head">
+      <a href="#inicio" class="logo" data-nav="inicio">
+        <svg class="logo__icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M4 6h6l5 24h22l5-17H13" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 18h24M17 24h21M22 13v17M30 13v17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="18" cy="38" r="3.4" fill="currentColor"/><circle cx="35" cy="38" r="3.4" fill="currentColor"/></svg>
+        <span class="logo__text"><strong>Mi Tiendita</strong><small>Tu tienda de barrio ♥</small></span>
+      </a>
+      <button class="icon-btn" id="btnCloseMenu" aria-label="Cerrar menú">✕</button>
+    </div>
+
+    <!-- PWA Install en Drawer para móviles -->
+    <button type="button" class="btn btn--primary btn-install-drawer" id="btnInstalarDrawer" hidden style="margin: 6px 0;">
+      📲 Instalar en Inicio
+    </button>
+
+    <ul class="drawer__list">
+      <li><a href="#inicio" data-nav="inicio">🏠 Inicio</a></li>
+      <li><a href="#categorias" data-nav="categorias">🗂️ Categorías</a></li>
+      <li><a href="#productos" data-nav="productos">🛍️ Productos</a></li>
+      <li><a href="#carrito" data-nav="carrito">🛒 Mi carrito <span class="badge cart-count">0</span></a></li>
+      <li><a href="#contacto" data-nav="contacto">✉️ Contacto</a></li>
+      <li><a href="#configuracion" data-nav="configuracion">⚙️ Configuración</a></li>
+    </ul>
+    
+    <div class="drawer__theme">
+      <span>☀ Modo claro</span>
+      <label class="switch" aria-label="Activar modo oscuro">
+        <input type="checkbox" class="theme-switch">
+        <span class="switch__track"></span>
+      </label>
+      <span>☾ Modo oscuro</span>
+    </div>
+    <p class="drawer__foot">¡Gracias por tu visita! ♥</p>
+  </aside>
+
+  <!-- ===================== CONTENEDOR PRINCIPAL ===================== -->
+  <main id="app">
+
+    <!-- ===================== VISTA: INICIO ===================== -->
+    <section class="view" id="view-inicio" data-view="inicio">
+      <div class="hero">
+        <div class="hero__text">
+          <h1>Lo esencial para tu día, <br>a la vuelta de casa</h1>
+          <p>Productos frescos y básicos de todos los días con la atención cercana y cordial de siempre.</p>
+          <a href="#productos" class="btn btn--primary" data-nav="productos">Comprar ahora</a>
+        </div>
+        <div class="hero__imgs" aria-hidden="true">
+          <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=85" 
+               alt="Productos frescos de Mi Tiendita" 
+               loading="lazy" 
+               decoding="async"
+               width="600" 
+               height="340">
+        </div>
+      </div>
+
+      <div class="section-head">
+        <h2>Productos destacados</h2>
+        <a href="#productos" data-nav="productos" class="link">Ver todos</a>
+      </div>
+      <div class="grid" id="featuredGrid"></div>
+
+      <div class="section-head">
+        <h2>Compra por categoría</h2>
+      </div>
+      <div class="cat-chips" id="homeCats"></div>
+    </section>
+
+    <!-- ===================== VISTA: CATEGORÍAS ===================== -->
+    <section class="view" id="view-categorias" data-view="categorias" hidden>
+      <div class="section-head"><h2>Categorías</h2></div>
+      <p class="muted">Toca una categoría para desplegar sus subcategorías (Acordeón con animación suave) y productos.</p>
+      <div class="layout-cats">
+        <ul class="cat-list" id="catList"></ul>
+        <div class="cat-results">
+          <div class="section-head">
+            <h3 id="catTitle">Elige una categoría</h3>
+          </div>
+          <div class="grid" id="catGrid"></div>
+        </div>
+      
+      <!-- Semana 2 - Filtro de 3 Capas -->
+      <div class="card-box" style="margin-top: 24px;">
+        <h3 style="margin-bottom: 8px;">Filtro Especial de 3 Capas (Guía Oficial Semana 2)</h3>
+        <p class="muted" style="margin-bottom: 14px;">Seleccione el área principal y la subcategoría en cascada:</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+          <select id="capa1" class="modal-select" style="min-width: 200px; min-height: 44px; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);" aria-label="Capa 1: Categoría Principal">
+            <option value="">-- Selecciona Área --</option>
+            <option value="panaderia">🥖 Panadería y Masas</option>
+            <option value="lacteos">🥛 Lácteos y Derivados</option>
+            <option value="bebidas">🥤 Bebidas y Aguas</option>
+            <option value="abarrotes">🌾 Abarrotes y Granos</option>
+            <option value="snacks">🍫 Snacks y Dulces</option>
+          </select>
+          <select id="capa2" class="modal-select" style="min-width: 200px; min-height: 44px; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);" disabled aria-label="Capa 2: Subcategoría">
+            <option value="">-- Seleccione subcategoría --</option>
+          </select>
+          <span id="resultadoFiltro" class="badge" style="font-size: 0.95rem; padding: 10px 16px; min-height: 44px; display: inline-flex; align-items: center;">Seleccione las capas anteriores...</span>
+        </div>
+      </div>
+</div>
+    </section>
+
+    <!-- ===================== VISTA: PRODUCTOS ===================== -->
+    <section class="view" id="view-productos" data-view="productos" hidden>
+      <div class="section-head">
+        <h2>Catálogo de Productos</h2>
+        <span class="muted" id="resultCount"></span>
+      </div>
+      <div class="filters">
+        <div class="chips" id="filterCats" role="group" aria-label="Filtrar por categoría"></div>
+        <div class="chips chips--sub" id="filterSubs" role="group" aria-label="Filtrar por subcategoría"></div>
+      </div>
+      <div class="grid" id="productGrid"></div>
+      <p class="empty" id="productEmpty" hidden>No encontramos productos con esa búsqueda. Prueba con otra palabra o cambia el filtro.</p>
+    </section>
+
+    <!-- ===================== VISTA: CARRITO ===================== -->
+    <section class="view" id="view-carrito" data-view="carrito" hidden>
+      <div class="section-head">
+        <h2>Mi carrito de compras</h2>
+        <button class="link link--btn" id="btnClearCart">Vaciar carrito</button>
+      </div>
+      <div class="cart-layout">
+        <ul class="cart-list" id="cartList"></ul>
+        <aside class="cart-summary" id="cartSummary">
+          <h3>Resumen del Pedido</h3>
+          <div class="row"><span>Productos</span><strong id="sumItems">0</strong></div>
+          <div class="row"><span>Subtotal</span><strong id="sumSubtotal">Bs 0.00</strong></div>
+          <div class="row row--total"><span>Total</span><strong id="sumTotal">Bs 0.00</strong></div>
+          <button class="btn btn--primary btn--block" id="btnCheckout">⚡ Finalizar pedido</button>
+          <a href="#productos" data-nav="productos" class="btn btn--ghost btn--block">Seguir comprando</a>
+        </aside>
+      </div>
+      <p class="empty" id="cartEmpty" hidden>Tu carrito está vacío. Agrega pan, leche o lo que necesites.<br><a href="#productos" data-nav="productos" class="btn btn--primary">Ver catálogo de productos</a></p>
+    </section>
+
+    <!-- ===================== VISTA: CONTACTO ===================== -->
+    <section class="view" id="view-contacto" data-view="contacto" hidden>
+      <div class="contact">
+        <div class="contact__intro">
+          <div class="shop-icon" aria-hidden="true">🏪</div>
+          <h2>¿Tienes alguna consulta? ¡Escríbenos!</h2>
+          <p class="muted">Respondemos en el día. También puedes pasar por la tienda en tu barrio.</p>
+        </div>
+
+        <form id="contactForm" class="form" novalidate>
+          <div class="field">
+            <label for="cName">Nombre completo *</label>
+            <input type="text" id="cName" name="nombre" placeholder="Ej: María Fernández" autocomplete="name">
+            <small class="error" aria-live="polite"></small>
+          </div>
+          <div class="field">
+            <label for="cEmail">Correo electrónico *</label>
+            <input type="email" id="cEmail" name="correo" placeholder="correo@ejemplo.com" autocomplete="email">
+            <small class="error" aria-live="polite"></small>
+          </div>
+          <div class="field">
+            <label for="cPhone">Número de celular *</label>
+            <input type="tel" id="cPhone" name="celular" placeholder="Ej: 71234567" inputmode="numeric" autocomplete="tel">
+            <small class="error" aria-live="polite"></small>
+          </div>
+          <div class="field">
+            <label for="cSubject">Asunto *</label>
+            <input type="text" id="cSubject" name="asunto" placeholder="¿Sobre qué quieres consultar?">
+            <small class="error" aria-live="polite"></small>
+          </div>
+          <div class="field">
+            <label for="cMsg">Mensaje *</label>
+            <textarea id="cMsg" name="mensaje" rows="4" placeholder="Escribe tu mensaje..."></textarea>
+            <small class="error" aria-live="polite"></small>
+          </div>
+          <button type="submit" class="btn btn--primary btn--block">Enviar mensaje</button>
+          <div class="success" id="formSuccess" hidden role="status"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===================== VISTA: CONFIGURACIÓN ===================== -->
+    <section class="view" id="view-configuracion" data-view="configuracion" hidden>
+      <div class="section-head"><h2>Configuración y PWA</h2></div>
+      <div class="card-box">
+        <div class="setting">
+          <div>
+            <h3>Tema de la página</h3>
+            <p class="muted">Elige modo claro u oscuro. Se recuerda en tu próxima visita.</p>
+          </div>
+          <label class="switch" aria-label="Activar modo oscuro">
+            <input type="checkbox" class="theme-switch">
+            <span class="switch__track"></span>
+          </label>
+        </div>
+        <div class="setting">
+          <div>
+            <h3>Datos del Carrito</h3>
+            <p class="muted">Limpia los productos almacenados localmente en este dispositivo.</p>
+          </div>
+          <button class="btn btn--ghost" id="btnResetData">Borrar carrito</button>
+        </div>
+        <div class="setting">
+          <div>
+            <h3>Soporte Offline PWA</h3>
+            <p class="muted">Esta app utiliza Service Worker con arquitectura Offline-First para funcionar sin internet.</p>
+          </div>
+          <button class="btn btn--ghost" id="btnReloadCache">Actualizar Caché</button>
+        
+        <!-- Semana 3 - Accesibilidad a11y y Contraste WCAG -->
+        <!-- Semana 3 - Desarrollo Agil y Smoke Testing -->
+        <!-- Semana 3 - Cierre A11Y HTML5 y HMR -->
+        <div class="setting" style="flex-direction: column; align-items: stretch; gap: 14px;">
+          <div>
+            <h3>Auditoría y Smoke Testing UPDS (Versión 13.0)</h3>
+            <p class="muted">Herramientas oficiales de evaluación en vivo pre-despliegue (Preguntas 35 y 36):</p>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <button type="button" class="btn btn--ghost" id="btnSimularContraste" aria-pressed="false" aria-label="Simular modo alto contraste">
+              🎨 Simular Alto Contraste (WCAG)
+            </button>
+            <button type="button" class="btn btn--ghost" id="btnSmokeTest" aria-label="Ejecutar Smoke Test DOM">
+              🧪 Ejecutar Smoke Test DOM
+            </button>
+            <button type="button" class="btn btn--ghost" id="btnAuditarA11Y" aria-label="Verificar Semántica HTML5 (Sin Recarga)">
+              ♿ Verificar Semántica HTML5 (Sin Recarga)
+            </button>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+            <p id="salidaAudit" class="audit-status-badge" aria-live="polite">Estado: Listo para verificar.</p>
+            <p id="reporteA11Y" class="audit-status-badge" role="status" aria-live="polite">Estado: Listo para auditar.</p>
+          </div>
+        </div>
+</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== PIE DE PÁGINA ===================== -->
+  <footer class="footer">
+    <p><strong>Mi Tiendita</strong> · Tu tienda de barrio ♥ · Precios en bolivianos (Bs) · PWA Offline-First</p>
+  </footer>
+
+  <!-- ===================== NAVEGACIÓN INFERIOR (CELULAR) ===================== -->
+  <nav class="bottom-nav" aria-label="Navegación inferior">
+    <a href="#inicio" data-nav="inicio"><span>🏠</span>Inicio</a>
+    <a href="#categorias" data-nav="categorias"><span>🗂️</span>Categorías</a>
+    <a href="#productos" data-nav="productos"><span>🛍️</span>Productos</a>
+    <a href="#carrito" data-nav="carrito"><span>🛒<b class="badge cart-count">0</b></span>Carrito</a>
+    <a href="#contacto" data-nav="contacto"><span>✉️</span>Contacto</a>
+  </nav>
+
+  <!-- ===================== MODAL DE CHECKOUT CON TEMPORIZADOR EXPIRABLE ===================== -->
+  <div class="modal-overlay" id="checkoutModal" style="display:none;" aria-hidden="true" role="dialog" aria-labelledby="modalTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle">Confirmar Pedido — Mi Tiendita</h3>
+        <button type="button" class="modal-close" id="btnCancelModal" aria-label="Cerrar modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-instruction">Verifique el detalle de su transacción antes de procesar el registro:</p>
+        <div class="modal-summary-box">
+          <div class="modal-row"><span>Cantidad de productos:</span> <strong id="modalQty">0</strong></div>
+          <div class="modal-row"><span>Total a cancelar:</span> <strong class="modal-total" id="modalTotal">Bs 0.00</strong></div>
+          <div class="modal-row">
+            <span>Método de pago:</span>
+            <select id="modalPayment" class="modal-select">
+              <option value="Efectivo contra entrega">💵 Efectivo al recibir</option>
+              <option value="QR Simple">📱 Pago con QR Simple</option>
+              <option value="Tarjeta">💳 Tarjeta Débito / Crédito</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-timer-badge">
+          ⏳ Tiempo Restante para Confirmar Tarifa: <strong id="modalTimer">00:30s</strong>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn--ghost" id="btnCloseModal">Cancelar</button>
+        <button type="button" class="btn btn--primary" id="btnConfirmOrder">⚡ Confirmar Compra</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Semana 2 - Fetch Lazy Loading y Bubbling (Lightbox) -->
+  <div id="lightboxImagenVisor" class="lightbox-visor" role="dialog" aria-modal="true" aria-label="Visor de imagen ampliada">
+    <div class="lightbox-visor__caja">
+      <button type="button" class="lightbox-visor__cerrar" id="btnCerrarLightbox" aria-label="Cerrar imagen ampliada">✕</button>
+      <img id="lightboxImagenFoto" class="lightbox-visor__imagen" src="" alt="Vista ampliada">
+      <p id="lightboxImagenTitulo" class="lightbox-visor__titulo"></p>
+    </div>
+  </div>
+
+  <!-- Toast Notificación Simple -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Toast Alert Flotante (Nivel PRO - Guía Viernes UPDS) -->
+  <div class="toast-alert" id="toastAlert" style="display:none;" role="alert"></div>
+
+  <!-- Scripts -->
+  <script src="js/jquery.min.js"></script>
+  <script src="js/script.js"></script>
+  <script src="js/accesibilidad.js" defer></script>
+  <script src="js/smoke-test.js" defer></script>
+  <script src="js/auditoria-a11y.js" defer></script>
+</body>
+</html>

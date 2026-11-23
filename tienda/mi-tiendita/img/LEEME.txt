@@ -1,0 +1,1 @@
+Coloca aqui las fotos (ej: pan.jpg, leche.jpg). Los nombres estan en js/script.js (campo file).
